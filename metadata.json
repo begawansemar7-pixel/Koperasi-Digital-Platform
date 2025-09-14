@@ -1,0 +1,5 @@
+{
+  "name": "Koperasi Digital Merah Putih",
+  "description": "A web application for the digital management of Koperasi Desa Merah Putih, featuring member management, finance, a community marketplace, and AI-powered financial advisory.",
+  "requestFramePermissions": []
+}
