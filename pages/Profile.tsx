@@ -51,8 +51,9 @@ const Profile: React.FC = () => {
           <form onSubmit={handleFormSubmit}>
             <dl className="divide-y divide-gray-200">
               <DetailRow label="Nama Lengkap" value={MOCK_USER.name} />
-              <DetailRow label="Nomor Anggota" value={MOCK_USER.memberId} />
-              <DetailRow label="Tanggal Bergabung" value={new Date(MOCK_USER.joinDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })} />
+              <DetailRow label="Nomor Anggota" value={MOCK_USER.memberId} isInput />
+              <DetailRow label="Tanggal Bergabung" value={MOCK_USER.joinDate} isInput inputType="date" />
+              <DetailRow label="URL Avatar" value={MOCK_USER.avatarUrl} isInput inputType="url" />
               <DetailRow label="Alamat Email" value={MOCK_USER.email} isInput inputType="email" />
               <DetailRow label="Nomor Telepon" value={MOCK_USER.phone} isInput inputType="tel" />
               <DetailRow label="Alamat" value={MOCK_USER.address} isInput isTextArea />
