@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { MOCK_PRODUCTS } from '../constants';
 import ProductCard from '../components/ProductCard';
@@ -18,11 +17,6 @@ const Marketplace: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-800">Marketplace Koperasi</h1>
-        <p className="text-gray-500 mt-1">Jelajahi produk unggulan dari anggota Desa Merah Putih.</p>
-      </div>
-
       <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
         <div className="flex space-x-2 bg-gray-200 p-1 rounded-full">
           {categories.map(category => (
@@ -46,7 +40,7 @@ const Marketplace: React.FC = () => {
             placeholder="Cari produk..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-300"
+            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-full text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-300 bg-white text-gray-900"
           />
         </div>
       </div>

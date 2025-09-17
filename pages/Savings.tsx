@@ -25,11 +25,6 @@ const Savings: React.FC = () => {
 
   return (
     <div className="space-y-8">
-       <div>
-        <h1 className="text-3xl font-bold text-gray-800">Rincian Simpanan</h1>
-        <p className="text-gray-500 mt-1">Pantau perkembangan simpanan Anda di koperasi.</p>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-start">
         <div className="lg:col-span-3 space-y-6">
             <SavingCard 

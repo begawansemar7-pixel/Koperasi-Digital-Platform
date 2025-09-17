@@ -45,38 +45,38 @@ const Register: React.FC = () => {
             <form className="space-y-4" onSubmit={handleRegister}>
                 <div>
                     <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nama Lengkap</label>
-                    <input id="name" name="name" type="text" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Budi Santoso"/>
+                    <input id="name" name="name" type="text" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white text-gray-900" placeholder="Budi Santoso"/>
                 </div>
 
                 <div>
                     <label htmlFor="address" className="block text-sm font-medium text-gray-700">Alamat Lengkap</label>
-                    <textarea id="address" name="address" rows={2} required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="Jl. Merdeka No. 17, Desa Merah Putih"></textarea>
+                    <textarea id="address" name="address" rows={2} required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white text-gray-900" placeholder="Jl. Merdeka No. 17, Desa Merah Putih"></textarea>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                       <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Nomor Telepon</label>
-                      <input id="phone" name="phone" type="tel" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="081234567890"/>
+                      <input id="phone" name="phone" type="tel" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white text-gray-900" placeholder="081234567890"/>
                   </div>
                    <div>
                       <label htmlFor="email" className="block text-sm font-medium text-gray-700">Alamat Email</label>
-                      <input id="email" name="email" type="email" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="anda@email.com"/>
+                      <input id="email" name="email" type="email" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white text-gray-900" placeholder="anda@email.com"/>
                   </div>
                 </div>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label htmlFor="password"className="block text-sm font-medium text-gray-700">Kata Sandi</label>
-                        <input id="password" name="password" type="password" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="********"/>
+                        <input id="password" name="password" type="password" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white text-gray-900" placeholder="********"/>
                     </div>
                      <div>
                         <label htmlFor="confirm-password"className="block text-sm font-medium text-gray-700">Konfirmasi Kata Sandi</label>
-                        <input id="confirm-password" name="confirm-password" type="password" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary" placeholder="********"/>
+                        <input id="confirm-password" name="confirm-password" type="password" required className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary focus:border-primary bg-white text-gray-900" placeholder="********"/>
                     </div>
                 </div>
 
                 <div>
                     <label htmlFor="saving-plan" className="block text-sm font-medium text-gray-700">Pilihan Simpanan Awal</label>
-                    <select id="saving-plan" name="saving-plan" required className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary">
+                    <select id="saving-plan" name="saving-plan" required className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary focus:outline-none focus:ring-primary bg-white text-gray-900">
                         <option>Paket Dasar (Pokok + Wajib)</option>
                         <option>Paket Plus (Pokok + Wajib + Sukarela Rp100.000)</option>
                         <option>Paket Premium (Pokok + Wajib + Sukarela Rp500.000)</option>

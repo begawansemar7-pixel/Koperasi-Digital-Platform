@@ -90,7 +90,7 @@ const ProductDetail: React.FC = () => {
                                 onChange={(e) => setNewComment(e.target.value)}
                                 rows={3}
                                 placeholder="Tulis komentar Anda di sini..."
-                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-300"
+                                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-300 bg-white text-gray-900"
                             ></textarea>
                             <button type="submit" className="mt-2 px-5 py-2 bg-secondary text-white font-semibold rounded-lg hover:bg-secondary/90 transition-colors">
                                 Kirim Komentar

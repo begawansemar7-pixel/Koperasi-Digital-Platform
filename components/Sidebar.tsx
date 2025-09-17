@@ -1,12 +1,13 @@
 import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { HomeIcon, ShoppingCartIcon, BanknotesIcon, CreditCardIcon, UserCircleIcon, Bars3Icon } from './Icons';
+import { HomeIcon, ShoppingCartIcon, BanknotesIcon, CreditCardIcon, UserCircleIcon, Bars3Icon, StarIcon } from './Icons';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Marketplace', href: '/marketplace', icon: ShoppingCartIcon },
   { name: 'Simpanan', href: '/savings', icon: BanknotesIcon },
   { name: 'Pinjaman', href: '/loans', icon: CreditCardIcon },
+  { name: 'Poin Loyalitas', href: '/loyalty', icon: StarIcon },
   { name: 'Profil Anggota', href: '/profile', icon: UserCircleIcon },
 ];
 

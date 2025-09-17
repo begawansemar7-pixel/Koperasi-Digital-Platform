@@ -16,6 +16,7 @@ import LandingLayout from './components/LandingLayout';
 import Register from './pages/Register';
 import DevPersona from './pages/DevPersona';
 import ProgramDetail from './pages/ProgramDetail';
+import Loyalty from './pages/Loyalty';
 
 const AppLayout: React.FC = () => (
   <div className="min-h-screen bg-gray-50 text-gray-800">
@@ -45,6 +46,7 @@ const App: React.FC = () => {
         <Route path="/marketplace/:productId" element={<ProductDetail />} />
         <Route path="/savings" element={<Savings />} />
         <Route path="/loans" element={<Loans />} />
+        <Route path="/loyalty" element={<Loyalty />} />
         <Route path="/profile" element={<Profile />} />
       </Route>
     </Routes>

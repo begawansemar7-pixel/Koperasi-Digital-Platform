@@ -1,13 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { MOCK_PROGRAMS } from '../constants';
-import { BanknotesIcon, CreditCardIcon, ShoppingCartIcon, AcademicCapIcon } from '../components/Icons';
+import { BanknotesIcon, CreditCardIcon, ShoppingCartIcon, AcademicCapIcon, StarIcon, UserGroupIcon, TruckIcon } from '../components/Icons';
 
 const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
     BanknotesIcon,
     CreditCardIcon,
     ShoppingCartIcon,
     AcademicCapIcon,
+    StarIcon,
+    UserGroupIcon,
+    TruckIcon
 };
 
 const ProgramIcon = ({ name }: { name: string }) => {
@@ -21,7 +24,7 @@ const Programs: React.FC = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
                  <h1 className="text-4xl font-bold text-gray-800">Program Unggulan Kami</h1>
                  <p className="mt-2 text-lg text-gray-600 max-w-2xl mx-auto">Kami menyediakan berbagai layanan untuk mendukung pertumbuhan ekonomi dan kesejahteraan anggota.</p>
-                 <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                 <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                      {MOCK_PROGRAMS.map(program => (
                          <Link 
                             to={`/programs/${program.id}`}

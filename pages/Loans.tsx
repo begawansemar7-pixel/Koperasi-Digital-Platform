@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { MOCK_LOANS, MOCK_USER } from '../constants';
-import { ChevronDownIcon, ChevronUpIcon, CheckCircleIcon, XMarkIcon, InformationCircleIcon } from '../components/Icons';
+import { MOCK_LOANS, MOCK_USER, MOCK_MEMBERS } from '../constants';
+import { ChevronDownIcon, ChevronUpIcon, CheckCircleIcon, InformationCircleIcon } from '../components/Icons';
 import LoanDetail from '../components/LoanDetail';
 import type { Loan, RepaymentInstallment } from '../types';
 
@@ -8,6 +8,7 @@ import type { Loan, RepaymentInstallment } from '../types';
 interface SubmittedLoan extends Loan {
   purpose: string;
   memberId: string;
+  memberName: string;
 }
 
 const formatCurrency = (amount: number) => `Rp${amount.toLocaleString('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
@@ -78,6 +79,10 @@ const ConfirmationView: React.FC<{ loan: SubmittedLoan, onBack: () => void }> = 
                     <span className="text-gray-500">Nomor Anggota</span>
                     <span className="font-medium text-gray-800">{loan.memberId}</span>
                 </div>
+                <div className="flex justify-between border-b pb-2">
+                    <span className="text-gray-500">Nama Anggota</span>
+                    <span className="font-medium text-gray-800">{loan.memberName}</span>
+                </div>
                  <div className="flex justify-between border-b pb-2">
                     <span className="text-gray-500">Jumlah Pinjaman</span>
                     <span className="font-medium text-gray-800">{formatCurrency(loan.amount)}</span>
@@ -131,22 +136,24 @@ const ConfirmationView: React.FC<{ loan: SubmittedLoan, onBack: () => void }> = 
 
 
 const Stepper: React.FC<{ currentStep: number }> = ({ currentStep }) => {
-    const steps = ["Detail Pinjaman", "Info & Jadwal", "Konfirmasi"];
+    const steps = ["Detail Pinjaman", "Informasi Anggota", "Konfirmasi"];
     return (
         <div className="mb-8">
-            <div className="flex items-center">
+            <ol className="flex items-center w-full">
                 {steps.map((step, index) => (
                     <React.Fragment key={index}>
-                        <div className="flex items-center">
-                            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${index + 1 <= currentStep ? 'bg-primary text-white' : 'bg-gray-200 text-gray-500'}`}>
+                        <li className={`flex items-center ${index + 1 <= currentStep ? 'text-primary' : 'text-gray-500'}`}>
+                           <span className={`flex items-center justify-center w-8 h-8 rounded-full shrink-0 ${index + 1 <= currentStep ? 'bg-primary text-white' : 'bg-gray-200'}`}>
                                 {index + 1 < currentStep ? <CheckCircleIcon className="w-5 h-5"/> : index + 1}
-                            </div>
-                            <p className={`ml-2 text-sm font-medium ${index + 1 <= currentStep ? 'text-primary' : 'text-gray-500'}`}>{step}</p>
-                        </div>
-                        {index < steps.length - 1 && <div className={`flex-auto border-t-2 transition duration-500 ease-in-out mx-4 ${index + 1 < currentStep ? 'border-primary' : 'border-gray-200'}`}></div>}
+                           </span>
+                           <span className="ml-2 text-sm font-medium hidden sm:inline-flex">{step}</span>
+                        </li>
+                        {index < steps.length - 1 && (
+                             <li className={`flex-auto border-t-2 transition-colors duration-500 mx-2 ${index + 1 < currentStep ? 'border-primary' : 'border-gray-200'}`}></li>
+                        )}
                     </React.Fragment>
                 ))}
-            </div>
+            </ol>
         </div>
     );
 };
@@ -158,17 +165,17 @@ const Loans: React.FC = () => {
   // Form State
   const [currentStep, setCurrentStep] = useState(1);
   const [memberId, setMemberId] = useState(MOCK_USER.memberId);
+  const [selectedMemberName, setSelectedMemberName] = useState(MOCK_USER.name);
   const [loanAmount, setLoanAmount] = useState('5000000');
   const [loanTerm, setLoanTerm] = useState('12');
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [loanPurpose, setLoanPurpose] = useState('');
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errors, setErrors] = useState<{ [key: string]: string | null }>({});
   const [submittedLoanDetails, setSubmittedLoanDetails] = useState<SubmittedLoan | null>(null);
 
   // Calculated State
   const [monthlyPayment, setMonthlyPayment] = useState(0);
   const [totalInterest, setTotalInterest] = useState(0);
-  const [isGuideVisible, setIsGuideVisible] = useState(true);
 
   useEffect(() => {
     const amount = parseFloat(loanAmount);
@@ -212,7 +219,7 @@ const Loans: React.FC = () => {
   const validateField = (name: string, value: string): string | null => {
     switch (name) {
         case 'memberId':
-            return !value.trim() ? 'Nomor Anggota wajib diisi.' : null;
+            return !value.trim() ? 'Anggota wajib dipilih.' : null;
         case 'loanAmount':
             const amount = parseFloat(value);
             if (!value || isNaN(amount) || amount < 500000) return 'Jumlah pinjaman minimal Rp500.000.';
@@ -220,7 +227,7 @@ const Loans: React.FC = () => {
             return null;
         case 'startDate':
             if (!value) return 'Tanggal mulai wajib diisi.';
-            if (value < new Date().toISOString().split('T')[0]) return 'Tanggal mulai tidak boleh di masa lalu.';
+            if (new Date(value) < new Date(new Date().toDateString())) return 'Tanggal mulai tidak boleh di masa lalu.';
             return null;
         case 'loanPurpose':
             return !value.trim() ? 'Tujuan pinjaman wajib diisi.' : null;
@@ -229,37 +236,43 @@ const Loans: React.FC = () => {
     }
   };
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     const error = validateField(name, value);
     setErrors(prev => ({ ...prev, [name]: error }));
   };
+  
+  const handleMemberChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = e.target.value;
+    const selectedMember = MOCK_MEMBERS.find(m => m.memberId === selectedId);
+    setMemberId(selectedId);
+    setSelectedMemberName(selectedMember ? selectedMember.name : '');
+    
+    // Clear error on valid selection
+    const error = validateField('memberId', selectedId);
+    setErrors(prev => ({ ...prev, memberId: error }));
+  };
 
   const validateStep = (step: number): boolean => {
-    let currentErrors: { [key: string]: string } = {};
-    let fieldsToValidate: { name: string, value: string }[] = [];
+    let hasErrors = false;
+    const currentErrors = { ...errors };
 
     if (step === 1) {
-        fieldsToValidate = [
-            { name: 'loanAmount', value: loanAmount },
-            { name: 'loanPurpose', value: loanPurpose },
-        ];
+        const amountError = validateField('loanAmount', loanAmount);
+        const purposeError = validateField('loanPurpose', loanPurpose);
+        currentErrors.loanAmount = amountError;
+        currentErrors.loanPurpose = purposeError;
+        if (amountError || purposeError) hasErrors = true;
     } else if (step === 2) {
-        fieldsToValidate = [
-            { name: 'memberId', value: memberId },
-            { name: 'startDate', value: startDate },
-        ];
+        const memberIdError = validateField('memberId', memberId);
+        const startDateError = validateField('startDate', startDate);
+        currentErrors.memberId = memberIdError;
+        currentErrors.startDate = startDateError;
+        if (memberIdError || startDateError) hasErrors = true;
     }
-
-    fieldsToValidate.forEach(({ name, value }) => {
-        const error = validateField(name, value);
-        if (error) {
-            currentErrors[name] = error;
-        }
-    });
-
+    
     setErrors(currentErrors);
-    return Object.keys(currentErrors).length === 0;
+    return !hasErrors;
   };
 
   const nextStep = () => {
@@ -274,7 +287,7 @@ const Loans: React.FC = () => {
   
   const handleLoanSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateStep(1) || !validateStep(2)) return;
+    if (!validateStep(1) && !validateStep(2)) return;
 
     const amount = parseFloat(loanAmount);
     const term = parseInt(loanTerm, 10);
@@ -291,6 +304,7 @@ const Loans: React.FC = () => {
         repaymentSchedule: estimatedSchedule,
         purpose: loanPurpose,
         memberId: memberId,
+        memberName: selectedMemberName,
     };
 
     setSubmittedLoanDetails(newLoanApplication);
@@ -303,6 +317,7 @@ const Loans: React.FC = () => {
     setLoanTerm('12');
     setLoanPurpose('');
     setMemberId(MOCK_USER.memberId);
+    setSelectedMemberName(MOCK_USER.name);
     setStartDate(new Date().toISOString().split('T')[0]);
     setErrors({});
   };
@@ -332,11 +347,6 @@ const Loans: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-800">Pinjaman & Pembiayaan</h1>
-        <p className="text-gray-500 mt-1">Ajukan pinjaman dan lihat riwayat pembiayaan Anda.</p>
-      </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-1">
             <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm">
@@ -356,14 +366,14 @@ const Loans: React.FC = () => {
                                     <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                                     <span className="text-gray-500 sm:text-sm">Rp</span>
                                     </div>
-                                    <input type="number" name="loanAmount" id="amount" className={`block w-full rounded-md border-gray-300 pl-8 pr-2 focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${errors.loanAmount ? 'border-red-500' : ''}`} placeholder="5000000" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)} onBlur={handleBlur} required step="100000" min="500000" max="20000000"/>
+                                    <input type="number" name="loanAmount" id="amount" className={`block w-full rounded-md border-gray-300 pl-8 pr-2 focus:border-primary-500 focus:ring-primary-500 sm:text-sm bg-white text-gray-900 ${errors.loanAmount ? 'border-red-500' : ''}`} placeholder="5000000" value={loanAmount} onChange={(e) => setLoanAmount(e.target.value)} onBlur={handleBlur} required step="100000" min="500000" max="20000000"/>
                                 </div>
                                 <input type="range" min="500000" max="20000000" step="100000" value={loanAmount || 500000} onChange={(e) => setLoanAmount(e.target.value)} className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer mt-3 accent-primary"/>
                                 {errors.loanAmount && <p className="mt-1 text-xs text-red-600">{errors.loanAmount}</p>}
                             </div>
                             <div>
                                 <label htmlFor="term" className="text-sm font-medium text-gray-600">Jangka Waktu (Bulan)</label>
-                                <select id="term" name="loanTerm" className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm" value={loanTerm} onChange={(e) => setLoanTerm(e.target.value)} required>
+                                <select id="term" name="loanTerm" className="mt-1 block w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-base focus:border-primary-500 focus:outline-none focus:ring-primary-500 sm:text-sm bg-white text-gray-900" value={loanTerm} onChange={(e) => setLoanTerm(e.target.value)} required>
                                     <option>6</option>
                                     <option>12</option>
                                     <option>18</option>
@@ -401,22 +411,41 @@ const Loans: React.FC = () => {
 
                             <div>
                                 <label htmlFor="purpose" className="text-sm font-medium text-gray-600">Tujuan Pinjaman</label>
-                                <textarea id="purpose" name="loanPurpose" rows={3} className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${errors.loanPurpose ? 'border-red-500' : ''}`} placeholder="Contoh: Modal usaha, biaya pendidikan..." value={loanPurpose} onChange={(e) => setLoanPurpose(e.target.value)} onBlur={handleBlur} required></textarea>
+                                <textarea id="purpose" name="loanPurpose" rows={3} className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm bg-white text-gray-900 ${errors.loanPurpose ? 'border-red-500' : ''}`} placeholder="Contoh: Modal usaha, biaya pendidikan..." value={loanPurpose} onChange={(e) => setLoanPurpose(e.target.value)} onBlur={handleBlur} required></textarea>
                                 {errors.loanPurpose && <p className="mt-1 text-xs text-red-600">{errors.loanPurpose}</p>}
                             </div>
                         </div>
                     )}
-                    {/* Step 2: Info & Schedule */}
+                    {/* Step 2: Member Information */}
                     {currentStep === 2 && (
                         <div className="space-y-4">
                              <div>
-                                <label htmlFor="memberId" className="text-sm font-medium text-gray-600">Nomor Anggota</label>
-                                <input type="text" name="memberId" id="memberId" className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${errors.memberId ? 'border-red-500' : ''}`} value={memberId} onChange={(e) => setMemberId(e.target.value)} onBlur={handleBlur} required />
+                                <label htmlFor="memberId" className="text-sm font-medium text-gray-600">Pilih Anggota</label>
+                                <select 
+                                    name="memberId" 
+                                    id="memberId" 
+                                    className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm bg-white text-gray-900 ${errors.memberId ? 'border-red-500' : ''}`} 
+                                    value={memberId} 
+                                    onChange={handleMemberChange}
+                                    onBlur={handleBlur}
+                                    required
+                                >
+                                    {MOCK_MEMBERS.map(member => (
+                                    <option key={member.id} value={member.memberId}>
+                                        {member.memberId} - {member.name}
+                                    </option>
+                                    ))}
+                                </select>
                                 {errors.memberId && <p className="mt-1 text-xs text-red-600">{errors.memberId}</p>}
+                                {selectedMemberName && (
+                                    <p className="mt-2 text-sm text-gray-700 bg-gray-100 p-2 rounded-md">
+                                        Nama Anggota: <span className="font-semibold">{selectedMemberName}</span>
+                                    </p>
+                                )}
                             </div>
                             <div>
                                 <label htmlFor="startDate" className="text-sm font-medium text-gray-600">Tanggal Mulai Pinjaman</label>
-                                <input type="date" name="startDate" id="startDate" className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm ${errors.startDate ? 'border-red-500' : ''}`} value={startDate} onChange={(e) => setStartDate(e.target.value)} onBlur={handleBlur} required/>
+                                <input type="date" name="startDate" id="startDate" className={`mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm bg-white text-gray-900 ${errors.startDate ? 'border-red-500' : ''}`} value={startDate} onChange={(e) => setStartDate(e.target.value)} onBlur={handleBlur} required/>
                                 {errors.startDate && <p className="mt-1 text-xs text-red-600">{errors.startDate}</p>}
                             </div>
                         </div>
@@ -427,10 +456,11 @@ const Loans: React.FC = () => {
                             <h4 className="text-lg font-semibold text-gray-800">Ringkasan Pengajuan</h4>
                             <div className="space-y-2 text-sm border p-4 rounded-lg bg-gray-50">
                                 <div className="flex justify-between"><span className="text-gray-500">Nomor Anggota</span><span className="font-medium text-gray-800">{memberId}</span></div>
+                                <div className="flex justify-between"><span className="text-gray-500">Nama Anggota</span><span className="font-medium text-gray-800">{selectedMemberName}</span></div>
                                 <div className="flex justify-between"><span className="text-gray-500">Jumlah Pinjaman</span><span className="font-medium text-gray-800">{formatCurrency(parseFloat(loanAmount))}</span></div>
                                 <div className="flex justify-between"><span className="text-gray-500">Jangka Waktu</span><span className="font-medium text-gray-800">{loanTerm} Bulan</span></div>
-                                <div className="flex justify-between"><span className="text-gray-500">Tanggal Mulai</span><span className="font-medium text-gray-800">{new Date(startDate).toLocaleDateString('id-ID')}</span></div>
-                                <div className="flex justify-between"><span className="text-gray-500">Tujuan</span><span className="font-medium text-gray-800 text-right">{loanPurpose}</span></div>
+                                <div className="flex justify-between"><span className="text-gray-500">Tanggal Mulai</span><span className="font-medium text-gray-800">{new Date(startDate).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</span></div>
+                                <div className="flex justify-between text-right"><span className="text-gray-500 shrink-0 mr-4">Tujuan</span><span className="font-medium text-gray-800">{loanPurpose}</span></div>
                                 <div className="flex justify-between pt-2 border-t mt-2"><span className="text-gray-500">Estimasi Angsuran</span><span className="font-bold text-primary">{formatCurrency(monthlyPayment)} / bulan</span></div>
                             </div>
                              <p className="text-xs text-gray-500">Dengan menekan tombol "Kirim Pengajuan", Anda menyetujui syarat dan ketentuan yang berlaku.</p>
@@ -438,19 +468,19 @@ const Loans: React.FC = () => {
                     )}
                     
                     <div className="pt-4 flex justify-between items-center">
-                        {currentStep > 1 && (
+                        {currentStep > 1 ? (
                              <button type="button" onClick={prevStep} className="px-6 py-2 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-colors">
                                 Kembali
                             </button>
-                        )}
-                        <div className="flex-grow"></div> {/* Spacer */}
+                        ) : <div />}
+                       
                         {currentStep < 3 && (
-                             <button type="button" onClick={nextStep} className="w-full sm:w-auto px-6 py-3 bg-secondary text-white font-semibold rounded-lg shadow-md hover:bg-secondary/90 transition-colors">
+                             <button type="button" onClick={nextStep} className="px-6 py-3 bg-secondary text-white font-semibold rounded-lg shadow-md hover:bg-secondary/90 transition-colors">
                                 Lanjutkan
                             </button>
                         )}
                         {currentStep === 3 && (
-                            <button type="submit" className="w-full sm:w-auto px-6 py-3 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-primary-700 transition-colors">
+                            <button type="submit" className="px-6 py-3 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-primary-700 transition-colors">
                                 Kirim Pengajuan
                             </button>
                         )}

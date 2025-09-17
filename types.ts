@@ -77,3 +77,19 @@ export interface Program {
     link: string;
   };
 }
+
+export interface LoyaltyReward {
+  id: string;
+  name: string;
+  description: string;
+  pointsRequired: number;
+  imageUrl: string;
+}
+
+export interface LoyaltyTransaction {
+  id: string;
+  date: string;
+  description: string;
+  points: number;
+  type: 'earned' | 'redeemed';
+}

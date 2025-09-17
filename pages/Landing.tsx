@@ -2,13 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { MOCK_CAROUSEL_SLIDES, MOCK_PROGRAMS, MOCK_NEWS, MOCK_PRODUCTS } from '../constants';
 import ProductCard from '../components/ProductCard';
-import { BanknotesIcon, CreditCardIcon, ShoppingCartIcon, AcademicCapIcon } from '../components/Icons';
+import { BanknotesIcon, CreditCardIcon, ShoppingCartIcon, AcademicCapIcon, StarIcon, UserGroupIcon, TruckIcon } from '../components/Icons';
 
 const iconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
     BanknotesIcon,
     CreditCardIcon,
     ShoppingCartIcon,
     AcademicCapIcon,
+    StarIcon,
+    UserGroupIcon,
+    TruckIcon
 };
 
 
@@ -60,7 +63,7 @@ const Landing: React.FC = () => {
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <h2 className="text-3xl font-bold text-gray-800">Program Unggulan Kami</h2>
                         <p className="mt-2 text-gray-600 max-w-2xl mx-auto">Kami menyediakan berbagai layanan untuk mendukung pertumbuhan ekonomi dan kesejahteraan anggota.</p>
-                        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                             {MOCK_PROGRAMS.map(program => (
                                 <Link to={`/programs/${program.id}`} key={program.title} className="block bg-gray-50 p-8 rounded-lg shadow-sm hover:shadow-lg hover:-translate-y-2 transition-transform duration-300">
                                     <div className="flex items-center justify-center h-20 w-20 bg-primary-100 rounded-full mx-auto mb-4">
