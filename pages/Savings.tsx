@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { MOCK_SAVINGS, MOCK_TRANSACTIONS } from '../constants';
 import SavingsChart from '../components/SavingsChart';
 
@@ -19,9 +19,43 @@ const SavingCard: React.FC<SavingCardProps> = ({ title, amount, description }) =
 
 const Savings: React.FC = () => {
   const formatCurrency = (amount: number) => `Rp${amount.toLocaleString('id-ID')}`;
+  
   const savingsTransactions = MOCK_TRANSACTIONS.filter(
       tx => tx.description.toLowerCase().includes('simpanan') || tx.description.toLowerCase().includes('iuran')
   );
+
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+
+  const filteredTransactions = useMemo(() => {
+    if (!startDate && !endDate) {
+      return savingsTransactions;
+    }
+    return savingsTransactions.filter(tx => {
+      const txDate = new Date(tx.date);
+      const start = startDate ? new Date(startDate) : null;
+      const end = endDate ? new Date(endDate) : null;
+      
+      if(start) start.setHours(0, 0, 0, 0);
+      if(end) end.setHours(23, 59, 59, 999);
+
+      if (start && end) {
+        return txDate >= start && txDate <= end;
+      }
+      if (start) {
+        return txDate >= start;
+      }
+      if (end) {
+        return txDate <= end;
+      }
+      return true;
+    });
+  }, [startDate, endDate, savingsTransactions]);
+
+  const resetFilter = () => {
+    setStartDate('');
+    setEndDate('');
+  };
 
   return (
     <div className="space-y-8">
@@ -50,7 +84,28 @@ const Savings: React.FC = () => {
       </div>
 
       <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm">
-           <h3 className="text-xl font-semibold text-gray-800 mb-6">Riwayat Transaksi Simpanan</h3>
+           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2 sm:mb-0">Riwayat Transaksi Simpanan</h3>
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <input
+                      type="date"
+                      value={startDate}
+                      onChange={(e) => setStartDate(e.target.value)}
+                      className="w-full sm:w-auto px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+                      aria-label="Tanggal Mulai"
+                  />
+                  <input
+                      type="date"
+                      value={endDate}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="w-full sm:w-auto px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary-300"
+                      aria-label="Tanggal Selesai"
+                  />
+                  {(startDate || endDate) && (
+                      <button onClick={resetFilter} className="px-3 py-1.5 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">Reset</button>
+                  )}
+              </div>
+            </div>
            <div className="overflow-x-auto">
              <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
@@ -62,20 +117,28 @@ const Savings: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {savingsTransactions.map((tx) => (
-                    <tr key={tx.id}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(tx.date).toLocaleDateString('id-ID')}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{tx.description}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${tx.type === 'credit' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                           {tx.type === 'credit' ? 'Setoran' : 'Penarikan'}
-                        </span>
-                      </td>
-                      <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${tx.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
-                        {formatCurrency(Math.abs(tx.amount))}
+                  {filteredTransactions.length > 0 ? (
+                    filteredTransactions.map((tx) => (
+                      <tr key={tx.id}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{new Date(tx.date).toLocaleDateString('id-ID')}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{tx.description}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${tx.type === 'credit' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                            {tx.type === 'credit' ? 'Setoran' : 'Penarikan'}
+                          </span>
+                        </td>
+                        <td className={`px-6 py-4 whitespace-nowrap text-sm font-medium ${tx.type === 'credit' ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatCurrency(Math.abs(tx.amount))}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={4} className="text-center text-gray-500 py-10">
+                        Tidak ada transaksi pada rentang tanggal yang dipilih.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
              </table>
            </div>

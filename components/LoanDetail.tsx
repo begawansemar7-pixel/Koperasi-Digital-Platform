@@ -3,6 +3,14 @@ import type { Loan, RepaymentInstallment } from '../types';
 
 const formatCurrency = (amount: number) => `Rp${amount.toLocaleString('id-ID')}`;
 
+// Mock transaction history for all loans. In a real app, this would be fetched or filtered from a global store.
+const MOCK_ALL_LOAN_PAYMENTS = [
+    { loanId: 'LOAN001', date: '2024-07-05', description: 'Pembayaran Angsuran #1', amount: 463591 },
+    { loanId: 'LOAN002', date: '2023-12-10', description: 'Angsuran Pinjaman Usaha', amount: 250000 },
+    { loanId: 'LOAN002', date: '2024-01-10', description: 'Angsuran Pinjaman Usaha', amount: 250000 },
+];
+
+
 interface RepaymentScheduleTableProps {
     schedule: RepaymentInstallment[];
     loanId: string;
@@ -67,6 +75,42 @@ const LoanDetail: React.FC<LoanDetailProps> = ({ loan, onMarkAsPaid }) => {
     
     const paidAmount = loan.amount - loan.remainingBalance;
     const progressPercentage = loan.amount > 0 ? (paidAmount / loan.amount) * 100 : 0;
+    
+    const loanTransactions = MOCK_ALL_LOAN_PAYMENTS.filter(tx => tx.loanId === loan.id);
+
+    const TransactionHistory = () => (
+        <div className="mb-8">
+            <h4 className="text-md font-semibold text-gray-700 mb-3">Riwayat Transaksi</h4>
+            <div className="border rounded-lg overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-100">
+                        <tr>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Deskripsi</th>
+                            <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Jumlah</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                        {loanTransactions.length > 0 ? (
+                            loanTransactions.map((tx, index) => (
+                                <tr key={index}>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">{new Date(tx.date).toLocaleDateString('id-ID')}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-800">{tx.description}</td>
+                                    <td className="px-4 py-3 whitespace-nowrap text-sm text-red-600 font-semibold">- {formatCurrency(tx.amount)}</td>
+                                </tr>
+                            ))
+                        ) : (
+                             <tr>
+                                <td colSpan={3} className="text-center text-gray-500 py-6">
+                                    Belum ada riwayat transaksi untuk pinjaman ini.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
 
     return (
         <div className="p-6 bg-gray-50 border-t-4 border-primary-100">
@@ -110,6 +154,8 @@ const LoanDetail: React.FC<LoanDetailProps> = ({ loan, onMarkAsPaid }) => {
                     <span>Total: {formatCurrency(loan.amount)}</span>
                 </div>
             </div>
+
+            <TransactionHistory />
 
             <RepaymentScheduleTable schedule={loan.repaymentSchedule} loanId={loan.id} onMarkAsPaid={onMarkAsPaid} />
         </div>
